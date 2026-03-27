@@ -22,7 +22,7 @@
 //***Общие настройки***//
 
 //версия прошивки
-#define CM_SW_VERSION 			  "0.16"
+#define CM_SW_VERSION 			  "0.17"
 // номер устройства
 #define FRAME_DEV_ID 			    218 // (218 - отработочный)
 // параметры МКО
@@ -90,6 +90,7 @@ void __main_init_peripheral_modules(void)
 	uint32_t mpp_offsets_array[MPP_DEV_NUM] = MPP_DEF_OFFSET;
 	uint32_t mpp_ib_id[MPP_DEV_NUM] = MPP_ID;
 	uint32_t mpp_ch_num[MPP_DEV_NUM] = MPP_CHANNENUM_ID;
+	uint8_t mpp_matrix_ena[MPP_DEV_NUM] = MPP_MATRIX_ENA;
   float mpp_ch_k[MPP_DEV_NUM] = MPP_CHAN_K;
 	float mpp_ch_b[MPP_DEV_NUM] = MPP_CHAN_B;
 	uint8_t uint8_var = 0;
@@ -105,7 +106,9 @@ void __main_init_peripheral_modules(void)
 					mpp_offsets_array[uint8_var], 
 					cm.ib_ptr, 
 					&cm.global_frame_num,
-          MPP_TYPE_MPP);
+          MPP_TYPE_MPP,
+          mpp_matrix_ena[uint8_var]
+        );
     mpp_set_calibr(&mpp[uint8_var], mpp_ch_k[uint8_var], mpp_ch_b[uint8_var]);
 	}
 	dep_init(&dep, DEP, 10, FRAME_DEV_ID, DEP+1, cm.ib_ptr, &cm.global_frame_num);
@@ -262,7 +265,7 @@ void cm_mko_command_interface_handler(typeCMModel *cm_ptr)
               break;
             case (CMD_SET_MPP_OFFSET):
               if ((sa_data[1] >= 1) && (sa_data[1] <= MPP_DEV_NUM)) {
-                mpp_set_offset(&mpp[sa_data[1] - 1], sa_data[2]);
+                mpp_write_offset_to_set(&mpp[sa_data[1] - 1], sa_data[2]);
               }
               break;
             case (CMD_CONST_MODE):

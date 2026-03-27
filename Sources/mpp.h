@@ -158,6 +158,7 @@ typedef struct
   float k, b; //калибровка для пересчета напряжения U[V] = k*ADC + b 
   //
   uint8_t mpp_type;
+  uint8_t matrix_ena;
   //
   uint16_t pwr_off_bound, mode, const_mode, mpp_max_survey_ena; // данные установки
   uint16_t offset_to_set;
@@ -195,7 +196,17 @@ typedef struct
 #pragma pack(pop)
 
 //
-void mpp_init(typeMPPStruct *mpp_ptr, uint8_t self_num, uint8_t id, uint16_t device_number, uint16_t frame_type, uint8_t channel, uint32_t offset, typeIBStruct *ib_ptr, uint32_t *gl_fr_num, uint8_t mpp_type);
+void mpp_init(typeMPPStruct* mpp_ptr, 
+              uint8_t self_num, 
+              uint8_t id, 
+              uint16_t device_number, 
+              uint16_t frame_type, 
+              uint8_t channel, 
+              uint32_t offset, 
+              typeIBStruct* ib_ptr, 
+              uint32_t* gl_fr_num, 
+              uint8_t mpp_type, 
+              uint8_t mpp_matrix_ena);
 void mpp_reset_parameters(typeMPPStruct *mpp_ptr);
 //
 int8_t mpp_process_tp(void *ctrl_struct, uint64_t time_us, typeProcessInterfaceStruct *interface);
@@ -203,6 +214,7 @@ int8_t mpp_process_tp(void *ctrl_struct, uint64_t time_us, typeProcessInterfaceS
 int8_t mpp_frame_forming(typeMPPStruct *mpp_ptr);
 void mpp_mko_frame_forming(typeMPPStruct* mpp_ptr);
 void mpp_set_calibr(typeMPPStruct* mpp_ptr, float k, float b);
+void mpp_write_offset_to_set(typeMPPStruct* mpp_ptr, uint16_t offset_to_set);
 //
 void mpp_time_set(typeMPPStruct *mpp_ptr, uint32_t time_s);
 void mpp_on_off(typeMPPStruct *mpp_ptr, uint32_t on_off);

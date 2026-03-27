@@ -22,7 +22,17 @@
 	* @param  ib_ptr указатель на внутреннюю шину
 	* @param  gl_fr_num указатель на сквозной глобальный номер кадра
   */
-void mpp_init(typeMPPStruct* mpp_ptr, uint8_t self_num, uint8_t id, uint16_t device_number, uint16_t frame_type, uint8_t channel, uint32_t offset, typeIBStruct* ib_ptr, uint32_t* gl_fr_num, uint8_t mpp_type)
+void mpp_init(	typeMPPStruct* mpp_ptr, 
+				uint8_t self_num, 
+				uint8_t id, 
+				uint16_t device_number, 
+				uint16_t frame_type, 
+				uint8_t channel, 
+				uint32_t offset, 
+				typeIBStruct* ib_ptr, 
+				uint32_t* gl_fr_num, 
+				uint8_t mpp_type, 
+				uint8_t mpp_matrix_ena)
 {
 	mpp_reset_parameters(mpp_ptr);
 	mpp_ptr->mpp_type = mpp_type;
@@ -31,6 +41,7 @@ void mpp_init(typeMPPStruct* mpp_ptr, uint8_t self_num, uint8_t id, uint16_t dev
 	mpp_ptr->frame_type = frame_type;
 	mpp_ptr->channel = channel;
 	mpp_ptr->ib = ib_ptr;
+	mpp_ptr->matrix_ena = mpp_matrix_ena;
 	mpp_ptr->self_num = self_num;
 	mpp_ptr->global_frame_num_ptr = gl_fr_num;
 	// учтановка параметров по умолчанию
@@ -91,7 +102,7 @@ int8_t mpp_process_tp(void* ctrl_struct, uint64_t time_us, typeProcessInterfaceS
 		mpp_ptr->last_call_time_us = time_us;
 		// user code begin
 		mpp_ptr->current_meas_interval = *(uint16_t*)&interface->shared_mem[64];
-		if((cyclo_get_operation_status(&mpp_ptr->meas_cyclo) == 0) && (mpp_ptr->mpp_max_survey_ena)){
+		if(((cyclo_get_operation_status(&mpp_ptr->meas_cyclo) == 0) && (mpp_ptr->mpp_max_survey_ena)) && (mpp_ptr->matrix_ena)){
 			mpp_mtrx_max_val_get(mpp_ptr);
 			mpp_rp_mtrx_val_process(mpp_ptr, mpp_ptr->matrix_raw.amplitude);
 		}
@@ -133,6 +144,15 @@ void mpp_set_calibr(typeMPPStruct* mpp_ptr, float k, float b)
 	mpp_ptr->b = b;
 }
 
+/**
+  * @brief  установка переменной offset_to_set, которая будет прописана на следующем измерительном интервале
+	* @param  mpp_ptr указатель на структуру управления
+	* @param  offset уровень срабатывания в квантах АЦП
+  */
+void mpp_write_offset_to_set(typeMPPStruct* mpp_ptr, uint16_t offset_to_set)
+{
+	mpp_ptr->offset_to_set = offset_to_set;
+}
 
 /**
   * @brief  функция получения данных для складывания в кадр
