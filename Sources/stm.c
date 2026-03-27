@@ -79,7 +79,6 @@ void stm_ch_temporary_set(type_STM_Channel_Model *stm_ch_ptr, uint8_t val, uint3
   stm_ch_ptr->temporary_timeout_ms = timeout_ms;
 }
 
-
 /**
  * @brief запрос текущего значения СТМ
  * 

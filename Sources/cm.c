@@ -63,7 +63,7 @@ void cm_init(
 	//
 	cm_ptr->half_set_num = gpio_get(cm_ptr->hs_io_ptr);
 	cm_set_clear_status(cm_ptr, CM_STATUS_CFG_HALF_SET, cm_ptr->half_set_num & 0x01);
-	// stm_single_ch_const_set(cm_ptr->stm_ptr, NKBE, (cm_ptr->half_set_num & 0x01));
+	stm_single_ch_const_set(cm_ptr->stm_ptr, NKBE, (cm_ptr->half_set_num & 0x01));
 	//
 	cm_ptr->device_number = device_number;
 	cm_ptr->sw_version = get_version_from_str(ver_str);
@@ -553,15 +553,20 @@ void cm_frame_forming(typeCMModel* cm_ptr)
 	//
 	for (i=0; i<PWR_CH_NUMBER; i++) {
 		if (i == PWR_CM1){
-			if (cm_ptr->half_set_num){
-				cm_ptr->frame.sys.body.currents[i] = cm_ptr->pwr_ptr->ch[i+1].current_mA;
+			if (cm_ptr->half_set_num == 0){
+				cm_ptr->frame.sys.body.currents[i] = cm_ptr->pwr_ptr->ch[i].current_mA;
 			}
 			else{
-				cm_ptr->frame.sys.body.currents[i] = cm_ptr->pwr_ptr->ch[i].current_mA;
+				cm_ptr->frame.sys.body.currents[i] = 0;
 			}
 		}
 		else if (i == PWR_CM2){
-			cm_ptr->frame.sys.body.currents[i] = 0;
+			if (cm_ptr->half_set_num == 0){
+				cm_ptr->frame.sys.body.currents[i] = 0;
+			}
+			else{
+				cm_ptr->frame.sys.body.currents[i] = cm_ptr->pwr_ptr->ch[i-1].current_mA;
+			}
 		}
 		else{
 			cm_ptr->frame.sys.body.currents[i] = cm_ptr->pwr_ptr->ch[i].current_mA;
